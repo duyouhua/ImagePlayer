@@ -143,8 +143,9 @@ public class MainActivity extends AppCompatActivity implements FileChooserDialog
     public void onFileSelection(FileChooserDialog dialog, File file) {
         // TODO
         final String tag = dialog.getTag(); // gets tag set from Builder, if you use multiple dialogs
-        ToastUtils.showShort(tag);
-        ImageIO.convertJPEGtoBin(file.toString(), "I420");
+        ToastUtils.showShort(file.getParent());
+
+        ImageIO.convertJPEGtoBin(file, "I420");
     }
 
     @Override

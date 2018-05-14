@@ -1,5 +1,7 @@
 package com.liukun.imp;
 
+import android.graphics.Bitmap;
+
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -10,13 +12,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-
 public class ImageIO {
 
     private static final Integer MAX = 9999;
 
-    public static void convertJPEGtoBin(String jpeg, String format) {
-        Mat image = Imgcodecs.imread(jpeg, Imgcodecs.IMREAD_COLOR);
+    public static void convertJPEGtoBin(File jpeg, String format) {
+        Mat image = Imgcodecs.imread(jpeg.toString(), Imgcodecs.IMREAD_COLOR);
         Mat output = image.clone();
         switch (format) {
             case "I420":
@@ -27,8 +28,29 @@ public class ImageIO {
                 break;
             default:break;
         }
-        writeBinToFile(output, new File("/sdcard/xxxx.bin"));
+        String fnOutput = jpeg.getParent() + File.separator + "image_" + output.width() + "x" + output.height() + "_" + format + ".bin";
+        writeBinToFile(output, new File(fnOutput));
     }
+
+//    public static Bitmap convertI420toBitmap(Mat image) {
+//
+//    }
+//
+//    public static Bitmap convertYV12toBitmap(Mat image) {
+//
+//    }
+//
+//    public static Bitmap convertRGBtoBitmap(Mat image) {
+//
+//    }
+//
+//    public static Bitmap convertPGMtoBitmap(Mat image) {
+//
+//    }
+//
+//    public static Bitmap convertFOLATtoBitmap(Mat image) {
+//
+//    }
 
     private static Mat readBinFromFile(File file) {
         Mat image = new Mat(MAX,MAX,CvType.CV_8UC4);
