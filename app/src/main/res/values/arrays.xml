@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="resolution">
+        <item>640x480</item>
+        <item>1920x1080</item>
+        <item>800x600</item>
+        <item>1024x768</item>
+        <item>1280x960</item>
+        <item>1600X1200</item>
+    </string-array>
+
+    <string-array name="format">
+        <item>NV12</item>
+        <item>NV21</item>
+        <item>YUV420P</item>
+        <item>YUV420SP</item>
+        <item>SHORT</item>
+        <item>FLOAT</item>
+    </string-array>
+
+</resources>
