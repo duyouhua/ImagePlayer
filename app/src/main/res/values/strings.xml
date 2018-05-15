@@ -1,14 +1,27 @@
 <resources>
     <string name="app_name">IMP</string>
 
-    <string name="settings">Settings</string>
+    <string name="agree">Agree</string>
+    <string name="disagree">Disagree</string>
+
+    <string name="useGoogleLocationServicesPrompt"><![CDATA[Let Google help apps determine location. <b>This means sending anonymous location data to Google</b>, even when no apps are running.]]></string>
 
     <string name="welcome">Welcome</string>
 
     <string name="open">Open</string>
-    <string name="resolution">Resolution</string>
-    <string name="format">Format</string>
 
+    <string name="reverse">Reverse</string>
+    <string name="save_as">Export</string>
+    <string name="zoomin">Zoom In</string>
+    <string name="zoomout">Zoom Out</string>
+    <string name="about">About</string>
+
+
+    <string name="settings">Settings</string>
+    <string name="resolution">Resolution</string>
+    <string name="width">Width</string>
+    <string name="height">Height</string>
+    <string name="format">Format</string>
 
     <string name="permission_rationale_message">You have rejected us to apply for authorization, please agree to authorization, otherwise the function can\'t be used normally!</string>
     <string name="permission_denied_forever_message">We need some of the permissions you rejected or the system failed to apply failed, please manually set to the page authorize, otherwise the function can\'t be used normally!</string>

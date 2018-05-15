@@ -2,10 +2,12 @@ package com.liukun.imp;
 
 import android.graphics.Bitmap;
 
+import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.utils.Converters;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,8 +15,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class ImageIO {
-
-    private static final Integer MAX = 9999;
 
     public static void convertJPEGtoBin(File jpeg, String format) {
         Mat image = Imgcodecs.imread(jpeg.toString(), Imgcodecs.IMREAD_COLOR);
@@ -32,14 +32,34 @@ public class ImageIO {
         writeBinToFile(output, new File(fnOutput));
     }
 
-//    public static Bitmap convertI420toBitmap(Mat image) {
-//
-//    }
-//
-//    public static Bitmap convertYV12toBitmap(Mat image) {
-//
-//    }
-//
+    public static Bitmap convertI420toBitmap(byte[] data, int w, int h) {
+
+        Mat imageI420 = new Mat(h * 3 / 2, w, CvType.CV_8UC1);
+        imageI420.put(0,0,data);
+
+        Mat imageBGR = new Mat(h,w,CvType.CV_8UC3);
+        Imgproc.cvtColor(imageI420, imageBGR, Imgproc.COLOR_YUV2RGB_I420);
+
+        Bitmap bm = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(imageBGR, bm);
+
+        return bm;
+    }
+
+    public static Bitmap convertYV12toBitmap(byte[] data, int w, int h) {
+
+        Mat imageI420 = new Mat(h * 3 / 2, w, CvType.CV_8UC1);
+        imageI420.put(0,0,data);
+
+        Mat imageBGR = new Mat(h,w,CvType.CV_8UC3);
+        Imgproc.cvtColor(imageI420, imageBGR, Imgproc.COLOR_YUV2RGB_YV12);
+
+        Bitmap bm = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(imageBGR, bm);
+
+        return bm;
+    }
+
 //    public static Bitmap convertRGBtoBitmap(Mat image) {
 //
 //    }
@@ -53,7 +73,7 @@ public class ImageIO {
 //    }
 
     private static Mat readBinFromFile(File file) {
-        Mat image = new Mat(MAX,MAX,CvType.CV_8UC4);
+        Mat image = new Mat(GlobalDef.MAX, GlobalDef.MAX,CvType.CV_8UC4);
         try {
             FileInputStream fis = new FileInputStream(file);
             byte[] data = new byte[fis.available()];

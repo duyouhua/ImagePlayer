@@ -16,7 +16,7 @@
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <LinearLayout
-        android:id="@+id/ui_settings"
+        android:id="@+id/layout_settings"
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -27,35 +27,42 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/open"
-            android:onClick="doOpen" />
+            android:onClick="btnOpen" />
 
         <Button
-            android:id="@+id/ui_resolution"
+            android:id="@+id/ui_settings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/resolution"
-            android:onClick="doSetResolution" />
+            android:text="@string/settings"
+            android:onClick="btnSettings" />
 
         <Button
-            android:id="@+id/ui_format"
+            android:id="@+id/ui_zoom_in"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/format"
-            android:onClick="doSetFormat" />
+            android:text="@string/zoomin"
+            android:onClick="btnZoomIn" />
 
         <Button
-            android:id="@+id/ui_wh2hw"
+            android:id="@+id/ui_zoom_out"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/format"
-            android:onClick="doReverseWH" />
+            android:text="@string/zoomout"
+            android:onClick="btnZoomOut" />
+
+        <Button
+            android:id="@+id/ui_save_as"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/save_as"
+            android:onClick="btnSaveAs" />
 
         <Button
             android:id="@+id/ui_about"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/format"
-            android:onClick="showAbout" />
+            android:text="@string/about"
+            android:onClick="btnAbout" />
 
     </LinearLayout>
 
