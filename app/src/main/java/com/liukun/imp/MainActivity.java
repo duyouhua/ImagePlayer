@@ -2,13 +2,14 @@ package com.liukun.imp;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.support.annotation.ArrayRes;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -28,14 +29,13 @@ import com.blankj.utilcode.util.ImageUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.PermissionUtils;
 import com.blankj.utilcode.util.ResourceUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.blankj.utilcode.util.Utils;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
 
 import java.io.File;
 import java.util.List;
@@ -45,17 +45,11 @@ public class MainActivity extends AppCompatActivity implements FileChooserDialog
     private static final String TAG = GlobalDef.PROJECT;
 
     private ImageView mainScreen = null;
-    private View positiveAction;
-    private EditText widthInput;
-    private EditText heightInput;
-    private Spinner formatInput;
+    private View controlTab = null;
 
-
-    private int imageWidth = 480;
-    private int imageHeight = 640;
-    private int imageFormat = 0;
-
-    private byte[] bytesBuf= null;
+    private EditText widthInput = null;
+    private EditText heightInput = null;
+    private Spinner formatInput = null;
 
     private Bitmap bmImage = null;
 
@@ -84,24 +78,93 @@ public class MainActivity extends AppCompatActivity implements FileChooserDialog
         // BlankJ工具初始化
         Utils.init(this);
 
+        // 获取应用使用次数
+        Integer iRes = SPUtils.getInstance(GlobalDef.PROJECT).getInt(GlobalDef.PROJECT,GlobalDef.FAIL);
+        if (iRes.equals(GlobalDef.FAIL)) {
+            // 释放测试资源到SD卡
+            copyAssetsToSD();
+            iRes = 1;
+        } else {
+            iRes += 1;
+        }
+        // 写入应用使用次数进行记录
+        SPUtils.getInstance(GlobalDef.PROJECT).put(GlobalDef.PROJECT,iRes);
+
         // 隐藏导航虚拟键
         BarUtils.setNavBarImmersive(this);
 
-        // 释放测试资源到SD卡
-        copyAssetsToSD();
-
-        // 加载界面
+        // 加载UI界面
         setContentView(R.layout.activity_main);
 
-        //
+        // 获取显示控件
         mainScreen = findViewById(R.id.ui_screen);
 
-        // 欢迎语
-        ToastUtils.showShort(R.string.welcome);
+        // 获取操作控件
+        controlTab = findViewById(R.id.layout_settings);
 
+        // 初始化OpenCV库
         OpenCVLoader.initDebug();
-
     }
+
+    /** * * 判断是否有长按动作发生 *
+     * @param lastX 按下时X坐标 *
+     * @param lastY 按下时Y坐标 * * *
+     * @param thisX * 移动时X坐标 * *
+     * @param thisY * 移动时Y坐标 * *
+     * @param lastDownTime * 按下时间 * *
+     * @param thisEventTime * 移动时间 * *
+     * @param longPressTime * 判断长按时间的阀值 */
+    static boolean isLongPressed(float lastX, float lastY, float thisX, float thisY, long lastDownTime, long thisEventTime, long longPressTime) {
+        float offsetX = Math.abs(thisX - lastX);
+        float offsetY = Math.abs(thisY - lastY);
+        long intervalTime = thisEventTime - lastDownTime;
+        if (offsetX <= 10 && offsetY <= 10 && intervalTime >= longPressTime) {
+            return true;
+        }
+        return false;
+    }
+
+
+    boolean mIsLongPressed = false;
+    float mLastMotionX = 0, mLastMotionY = 0;
+    long lastDownTime = 0;
+    long eventTime = 0;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                mLastMotionX = event.getX();
+                mLastMotionY = event.getY();
+                lastDownTime = event.getDownTime();
+                mIsLongPressed = false;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float x = event.getX();
+                float y = event.getY();
+                eventTime = event.getEventTime();
+                if(!mIsLongPressed){
+                    mIsLongPressed = isLongPressed(mLastMotionX, mLastMotionY, x, y, lastDownTime, eventTime,1500);
+                }
+                if(mIsLongPressed){
+                    mIsLongPressed = true;
+                    if (controlTab.getVisibility() == View.VISIBLE){
+                        controlTab.setVisibility(View.GONE);
+                    } else {
+                        controlTab.setVisibility(View.VISIBLE);
+                    }
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                mIsLongPressed = false;
+                break;
+
+
+        }
+        return true;
+    }
+
 
     @Override
     public void onResume() {
@@ -116,21 +179,16 @@ public class MainActivity extends AppCompatActivity implements FileChooserDialog
     }
 
     @Override
-    public void onFileSelection(FileChooserDialog dialog, File file) {
-
+    public void onFileSelection(@NonNull FileChooserDialog dialog, @NonNull File file) {
         PermissionUtils.permission(PermissionConstants.STORAGE)
                 .rationale(DialogHelper::showRationaleDialog)
                 .callback(new PermissionUtils.FullCallback() {
-
                     @Override
                     public void onGranted(List<String> permissionsGranted) {
                         LogUtils.d(permissionsGranted);
-                        if (file != null) {
-                            ToastUtils.showShort("Open " + file.getPath());
-                            bytesBuf = FileIOUtils.readFile2BytesByStream(file);
-                        }
+                        ToastUtils.showShort("Open " + file.getName());
+                        SPUtils.getInstance(GlobalDef.PROJECT).put(GlobalDef.FILENAME, file.getPath());
                     }
-
                     @Override
                     public void onDenied(List<String> permissionsDeniedForever,
                                          List<String> permissionsDenied) {
@@ -145,31 +203,24 @@ public class MainActivity extends AppCompatActivity implements FileChooserDialog
 
     @Override
     public void onFileChooserDismissed(@NonNull FileChooserDialog dialog) {
-        // TODO
     }
 
     private void openFileSelectorDialog() {
         new FileChooserDialog.Builder(this)
-                .initialPath("/sdcard")  // changes initial path, defaults to external storage directory
-                .mimeType("*/*") // Optional MIME type filter
-                .extensionsFilter(".bin") // Optional extension filter, will override mimeType()
-                .tag("optional-identifier")
-                .goUpLabel("...") // custom go up label, default label is "..."
-                .show(this); // an AppCompatActivity which implements FileCallback
+                .initialPath(Environment.getExternalStorageDirectory().getPath())
+                .extensionsFilter(GlobalDef.EXTENSIONS)
+                .show(this);
     }
 
     public void btnOpen(View view) {
-
         PermissionUtils.permission(PermissionConstants.STORAGE)
                 .rationale(DialogHelper::showRationaleDialog)
                 .callback(new PermissionUtils.FullCallback() {
-
                     @Override
                     public void onGranted(List<String> permissionsGranted) {
                         LogUtils.d(permissionsGranted);
                         openFileSelectorDialog();
                     }
-
                     @Override
                     public void onDenied(List<String> permissionsDeniedForever,
                                          List<String> permissionsDenied) {
@@ -178,98 +229,103 @@ public class MainActivity extends AppCompatActivity implements FileChooserDialog
                         }
                         LogUtils.d(permissionsDeniedForever, permissionsDenied);
                     }
-
                 }).request();
     }
 
-    private void showImage() {
-
-        imageWidth = Integer.getInteger(widthInput.getText().toString().trim(), 0);
-        imageHeight = Integer.getInteger(heightInput.getText().toString().trim(), 0);
-
-
-        ToastUtils.showShort("param " + imageWidth + "x" + imageHeight + " " + imageFormat);
-
-
-        bmImage = ImageIO.convertI420toBitmap(bytesBuf, 2340, 2880);
-
-        mainScreen.setImageBitmap(bmImage);
+    // 显示图片
+    private void showImage(float scale) {
+        // 读取输入文件全名
+        String strFilename = SPUtils.getInstance(GlobalDef.PROJECT).getString(GlobalDef.FILENAME);
+        // 判断输入格式是否支持
+        Integer iFormat = SPUtils.getInstance(GlobalDef.PROJECT).getInt(GlobalDef.FORMAT);
+        // 判断输入宽高是否合法
+        String strWidth =  SPUtils.getInstance(GlobalDef.PROJECT).getString(GlobalDef.WIDTH);
+        Integer iWidth = Integer.parseInt(strWidth);
+        String strHeight =  SPUtils.getInstance(GlobalDef.PROJECT).getString(GlobalDef.HEIGHT);
+        Integer iHeight = Integer.parseInt(strHeight);
+        // 图片格式转化
+        if (iFormat>=0 && iFormat<=3) {
+            byte[] bytesBuf = FileIOUtils.readFile2BytesByStream(strFilename);
+            bmImage = ImageIO.convertYUVsToBitmap(bytesBuf, iWidth, iHeight, iFormat);
+        } else if (iFormat>=7 && iFormat<=9) {
+            bmImage = ImageIO.convertImagesToBitmap(strFilename);
+        }
+        // 图片缩放
+        if(bmImage!=null) bmImage = ImageUtils.scale(bmImage, scale, scale);
+        // 显示图片
+        if(mainScreen!=null && bmImage!=null) mainScreen.setImageBitmap(bmImage);
+        // 隐藏导航虚拟键
+        BarUtils.setNavBarImmersive(this);
     }
 
     public void btnSettings(View view) {
-
+        // 弹窗
         MaterialDialog dialog =
                 new MaterialDialog.Builder(this)
                         .title(R.string.settings)
                         .customView(R.layout.dialog_settings, true)
                         .positiveText(android.R.string.ok)
                         .negativeText(android.R.string.cancel)
-                        .onPositive((dialog1, which) -> showImage())
+                        .onPositive((dialog1, which) -> showImage(1.0f))
                         .build();
-
-        positiveAction = dialog.getActionButton(DialogAction.POSITIVE);
-
+        // 宽度设置
         widthInput = dialog.getCustomView().findViewById(R.id.width);
         widthInput.addTextChangedListener(
                 new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        positiveAction.setEnabled(s.toString().trim().length() > 0);
+                        SPUtils.getInstance(GlobalDef.PROJECT).put(GlobalDef.WIDTH, s.toString().trim());
                     }
-
                     @Override
                     public void afterTextChanged(Editable s) {}
                 });
-
+        // 高度设置
         heightInput = dialog.getCustomView().findViewById(R.id.height);
         heightInput.addTextChangedListener(
                 new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        positiveAction.setEnabled(s.toString().trim().length() > 0);
+                        SPUtils.getInstance(GlobalDef.PROJECT).put(GlobalDef.HEIGHT, s.toString().trim());
                     }
-
                     @Override
                     public void afterTextChanged(Editable s) {}
                 });
-
+        // 格式选择
         formatInput = dialog.getCustomView().findViewById(R.id.format);
         formatInput.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                imageFormat = position;
+                SPUtils.getInstance(GlobalDef.PROJECT).put(GlobalDef.FORMAT, position);
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
             }
         });
-
+        // 显示窗口
         dialog.show();
-        positiveAction.setEnabled(false); // disabled by default
     }
 
-
-
+    float mScale = 1.0f;
     public void btnZoomIn(View view) {
-
-        Bitmap bm = ImageUtils.scale(bmImage, 2340/2, 2880/2);
-        mainScreen.setImageBitmap(bm);
+        mScale *= 2.0f;
+        showImage(mScale);
     }
 
     public void btnZoomOut(View view) {
-
+        mScale *= 0.5f;
+        showImage(mScale);
     }
 
-    public void btnbtnSaveAs(View view) {
-
+    public void btnExport(View view) {
+        if (bmImage != null) {
+            ImageUtils.save(bmImage, GlobalDef.SCREENSHOT, Bitmap.CompressFormat.PNG);
+        } else {
+            ToastUtils.showShort("保存失败");
+        }
     }
 
     public void btnAbout(View view) {
@@ -292,17 +348,16 @@ public class MainActivity extends AppCompatActivity implements FileChooserDialog
                 .show();
     }
 
-    // 拷贝预置图片资源到SD卡
+    // 拷贝Assets资源到SD卡
     private void copyAssetsToSD() {
-        // 查看是否具备读写权限
         PermissionUtils.permission(PermissionConstants.STORAGE)
                 .rationale(DialogHelper::showRationaleDialog)
                 .callback(new PermissionUtils.FullCallback() {
                     @Override
                     public void onGranted(List<String> permissionsGranted) {
-                        FileUtils.createOrExistsDir(GlobalDef.ROOT);
-                        ResourceUtils.copyFileFromAssets("aoisola.jpg", GlobalDef.ROOT + File.separator+ "aoisola.jpg");
                         LogUtils.d(permissionsGranted);
+                        FileUtils.createOrExistsDir(GlobalDef.ROOT);
+                        ResourceUtils.copyFileFromAssets(GlobalDef.IMAGE,GlobalDef.ROOT+File.separator+GlobalDef.IMAGE);
                     }
                     @Override
                     public void onDenied(List<String> permissionsDeniedForever,
@@ -313,6 +368,31 @@ public class MainActivity extends AppCompatActivity implements FileChooserDialog
                         LogUtils.d(permissionsDeniedForever, permissionsDenied);
                     }
                 }).request();
+    }
+
+    // 根据文件扩展名估计文件格式
+    private void autoSetFormat(String filename) {
+        String extension = FileUtils.getFileExtension(filename);
+
+        extension = "." + extension;
+
+        /* bin yuv */
+        if(extension.equals(GlobalDef.EXTENSIONS[0]) || extension.equals(GlobalDef.EXTENSIONS[1])){
+            SPUtils.getInstance(GlobalDef.PROJECT).put(GlobalDef.FORMAT, 0);
+            return;
+        }
+
+        /* bmp jpeg jpg png */
+        if(extension.equals(GlobalDef.EXTENSIONS[2]) || extension.equals(GlobalDef.EXTENSIONS[3]) || extension.equals(GlobalDef.EXTENSIONS[4]) || extension.equals(GlobalDef.EXTENSIONS[5])){
+            SPUtils.getInstance(GlobalDef.PROJECT).put(GlobalDef.FORMAT, 7);
+            return;
+        }
+
+    }
+
+    // 根据文件名估计分辨率
+    private void autoSetResolution(String filename) {
+
     }
 
 }

@@ -8,14 +8,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
-        android:text="@string/resolution"
-        android:textColor="#80000000"
-        android:textSize="@dimen/customTitle" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
         android:text="@string/width"
         android:textColor="#80000000"
         android:textSize="@dimen/customTitle" />

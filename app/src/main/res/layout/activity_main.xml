@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/ui_screen"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -19,7 +19,7 @@
         android:id="@+id/layout_settings"
         android:orientation="vertical"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintRight_toRightOf="parent" >
 
         <Button
@@ -51,11 +51,11 @@
             android:onClick="btnZoomOut" />
 
         <Button
-            android:id="@+id/ui_save_as"
+            android:id="@+id/ui_export"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/save_as"
-            android:onClick="btnSaveAs" />
+            android:text="@string/export"
+            android:onClick="btnExport" />
 
         <Button
             android:id="@+id/ui_about"

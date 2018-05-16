@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">狄俄尼索斯</string>
+
+    <string name="agree">同意</string>
+    <string name="disagree">不同意</string>
+
+    <string name="useGoogleLocationServicesPrompt"><![CDATA[本程序中使用OpenCV/afollestad/Blankj的代码,仅用于评估. <b>未经授权请勿用于商业用途.</b> 如发现BUG请联系作者修改.]]></string>
+
+    <string name="open">打开</string>
+
+    <string name="export">导出</string>
+    <string name="zoomin">放大</string>
+    <string name="zoomout">缩小</string>
+    <string name="about">关于</string>
+
+    <string name="settings">设置</string>
+    <string name="resolution">分辨率</string>
+    <string name="width">宽度</string>
+    <string name="height">高度</string>
+    <string name="format">格式</string>
+
+    <string name="permission_rationale_message">You have rejected us to apply for authorization, please agree to authorization, otherwise the function can\'t be used normally!</string>
+    <string name="permission_denied_forever_message">We need some of the permissions you rejected or the system failed to apply failed, please manually set to the page authorize, otherwise the function can\'t be used normally!</string>
+
+
+    <string name="copyright">Copyright © 2018&#8211;2023 我的代码温柔如风</string>
+
+
+</resources>

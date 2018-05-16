@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">IMP</string>
+    <string name="app_name">Dionysos</string>
 
     <string name="agree">Agree</string>
     <string name="disagree">Disagree</string>
@@ -11,7 +11,7 @@
     <string name="open">Open</string>
 
     <string name="reverse">Reverse</string>
-    <string name="save_as">Export</string>
+    <string name="export">Export</string>
     <string name="zoomin">Zoom In</string>
     <string name="zoomout">Zoom Out</string>
     <string name="about">About</string>

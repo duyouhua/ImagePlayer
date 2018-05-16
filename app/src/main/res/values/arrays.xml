@@ -2,12 +2,16 @@
 <resources>
 
     <string-array name="format">
+        <item>I420</item>
+        <item>YV12</item>
         <item>NV12</item>
         <item>NV21</item>
-        <item>YUV420P</item>
-        <item>YUV420SP</item>
         <item>SHORT</item>
         <item>FLOAT</item>
+        <item>RGB</item>
+        <item>JPEG</item>
+        <item>PNG</item>
+        <item>BMP</item>
     </string-array>
 
 </resources>
